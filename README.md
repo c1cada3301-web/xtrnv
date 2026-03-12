@@ -56,7 +56,36 @@ MTPROXY_SCRIPT=/opt/mtproxymax/mtproxymax
 | `ADMIN_IDS`      | Telegram ID администраторов через запятую             |
 | `MTPROXY_SCRIPT` | Путь к скрипту mtproxymax (по умолчанию как выше)     |
 
-## Запуск
+## Деплой на сервер (systemd)
+
+```bash
+# 1. Скопировать проект
+git clone <repo> /opt/mtproxy-bot
+cd /opt/mtproxy-bot
+
+# 2. Создать venv и установить зависимости
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+
+# 3. Создать .env (см. раздел «Настройка»)
+nano .env
+
+# 4. Установить systemd-сервис
+cp mtproxy-bot.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable mtproxy-bot
+systemctl start mtproxy-bot
+```
+
+Управление:
+```bash
+systemctl status mtproxy-bot   # статус
+journalctl -u mtproxy-bot -f   # логи в реальном времени
+systemctl restart mtproxy-bot  # перезапуск
+systemctl stop mtproxy-bot     # остановка
+```
+
+## Локальный запуск
 
 ```bash
 python main.py
