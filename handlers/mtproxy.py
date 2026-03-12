@@ -102,9 +102,8 @@ async def menu_stats(message: Message):
 
 @router.callback_query(F.data == "get_link")
 async def cb_get_link(callback: CallbackQuery, state: FSMContext):
-    _, users = await mp.secret_list()
     await callback.message.answer(
-        f"<b>Текущие пользователи:</b>\n<pre>{users}</pre>\n\nВведите имя пользователя для получения ссылки:",
+        f"Введите имя пользователя для получения ссылки:",
         parse_mode="HTML",
         reply_markup=get_back_keyboard(),
     )
@@ -191,9 +190,8 @@ async def cb_confirm_add(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "remove_user")
 async def cb_remove_user(callback: CallbackQuery, state: FSMContext):
-    _, users = await mp.secret_list()
     await callback.message.answer(
-        f"<b>Текущие пользователи:</b>\n<pre>{users}</pre>\n\nВведите имя пользователя для удаления:",
+        f"Введите имя пользователя для удаления:",
         parse_mode="HTML",
         reply_markup=get_back_keyboard(),
     )
@@ -235,9 +233,8 @@ async def cb_confirm_remove(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "edit_secret")
 async def cb_edit_secret(callback: CallbackQuery, state: FSMContext):
-    _, users = await mp.secret_list()
     await callback.message.answer(
-        f"<b>Текущие пользователи:</b>\n<pre>{users}</pre>\n\nВведите имя пользователя для смены секрета:",
+        f"Введите имя пользователя для смены секрета:",
         parse_mode="HTML",
         reply_markup=get_back_keyboard(),
     )
