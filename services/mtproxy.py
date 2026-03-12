@@ -1,3 +1,4 @@
+import re
 import asyncio
 import logging
 from config import config
@@ -5,6 +6,11 @@ from config import config
 logger = logging.getLogger(__name__)
 
 SCRIPT = config.MTPROXY_SCRIPT
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _strip_ansi(text: str) -> str:
+    return _ANSI_RE.sub("", text)
 
 
 async def _run(*args: str) -> tuple[bool, str]:
@@ -16,7 +22,7 @@ async def _run(*args: str) -> tuple[bool, str]:
             stderr=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=30)
-        output = (stdout.decode().strip() or stderr.decode().strip())
+        output = _strip_ansi(stdout.decode().strip() or stderr.decode().strip())
         success = proc.returncode == 0
         if not success:
             logger.warning("mtproxymax %s exit=%d stderr=%s", args, proc.returncode, stderr.decode().strip())

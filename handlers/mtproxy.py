@@ -40,39 +40,69 @@ async def menu_secrets(message: Message):
 
 @router.message(F.text == "💎 Прокси")
 async def menu_proxy(message: Message):
-    ok, out = await mp.proxy_status()
-    status_icon = "🟢" if ok else "🔴"
+    ok, out = await mp.secret_list()
+    if not ok:
+        await message.answer(f"❌ Ошибка: {out}")
+        return
     await message.answer(
-        f"{status_icon} <b>Статус прокси</b>\n\n<pre>{out}</pre>",
+        f"💎 <b>Трафик по секретам</b>\n\n<pre>{out}</pre>",
         parse_mode="HTML",
     )
-
-
-# ─── Кнопка «🛠 Подключение» ──────────────────────────────────────────────────
-
-@router.message(F.text == "🛠 Подключение")
-async def menu_connection(message: Message, state: FSMContext):
-    _, users = await mp.secret_list()
-    await message.answer(
-        f"<b>Текущие пользователи:</b>\n<pre>{users}</pre>\n\nВведите имя пользователя для получения ссылки подключения:",
-        parse_mode="HTML",
-        reply_markup=get_back_keyboard(),
-    )
-    await state.set_state(MTProxyStates.waiting_label_link)
 
 
 # ─── Кнопка «📊 Статистика» ───────────────────────────────────────────────────
 
 @router.message(F.text == "📊 Статистика")
 async def menu_stats(message: Message):
-    ok, out = await mp.secret_list()
-    if not ok:
-        await message.answer(f"❌ Ошибка: {out}")
-        return
+    ok, out = await mp.proxy_status()
+    status_icon = "🟢" if ok else "🔴"
     await message.answer(
-        f"📊 <b>Список пользователей</b>\n\n<pre>{out}</pre>",
+        f"{status_icon} <b>Общий статус прокси</b>\n\n<pre>{out}</pre>",
         parse_mode="HTML",
     )
+
+
+# ─── Inline: ссылка по имени (+ QR) ─────────────────────────────────────────
+
+@router.callback_query(F.data == "get_link")
+async def cb_get_link(callback: CallbackQuery, state: FSMContext):
+    _, users = await mp.secret_list()
+    await callback.message.answer(
+        f"<b>Текущие пользователи:</b>\n<pre>{users}</pre>\n\nВведите имя пользователя для получения ссылки:",
+        parse_mode="HTML",
+        reply_markup=get_back_keyboard(),
+    )
+    await state.set_state(MTProxyStates.waiting_label_link)
+    await callback.answer()
+
+
+# ─── Inline: список всех секретов со ссылками ────────────────────────────────
+
+@router.callback_query(F.data == "all_secrets")
+async def cb_all_secrets(callback: CallbackQuery):
+    ok, out = await mp.secret_list()
+    if not ok:
+        await callback.message.answer(f"❌ Ошибка: {out}")
+        await callback.answer()
+        return
+
+    lines = []
+    for line in out.splitlines():
+        parts = line.strip().split()
+        # формат строки: "N  label  ● active ..."
+        if len(parts) < 2 or not parts[0].isdigit():
+            continue
+        name = parts[1]
+        lok, lout = await mp.secret_link(name)
+        link = extract_proxy_link(lout) if lok else None
+        if link:
+            lines.append(f"<b>{name}</b>\n<code>{link}</code>")
+        else:
+            lines.append(f"<b>{name}</b> — ссылка недоступна")
+
+    text = "\n\n".join(lines) if lines else "Пользователей нет"
+    await callback.message.answer(text, parse_mode="HTML")
+    await callback.answer()
 
 
 # ─── Inline: добавить пользователя ───────────────────────────────────────────

@@ -4,8 +4,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 def get_driver_main_menu() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
-    builder.row(KeyboardButton(text="💎 Прокси"), KeyboardButton(text="🔑 Секреты"),)
-    builder.row(KeyboardButton(text="🛠 Подключение"), KeyboardButton(text="📊 Статистика"),)
+    builder.row(KeyboardButton(text="💎 Прокси"), KeyboardButton(text="🔑 Секреты"))
+    builder.row(KeyboardButton(text="📊 Статистика"))
     return builder.as_markup(resize_keyboard=True, input_field_placeholder="Выберите действие...")
 
 def get_back_keyboard() -> ReplyKeyboardMarkup:
@@ -26,6 +26,8 @@ def get_confirm_inline_keyboard() -> InlineKeyboardMarkup:
 def get_actions_menu_inline() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [InlineKeyboardButton(text="🔗 Все секреты", callback_data="all_secrets")],
+            [InlineKeyboardButton(text="📎 Ссылка по имени", callback_data="get_link")],
             [InlineKeyboardButton(text="👤 Добавить пользователя", callback_data="add_user")],
             [InlineKeyboardButton(text="🚫 Удалить пользователя", callback_data="remove_user")],
             [InlineKeyboardButton(text="⭕️ Сменить секрет", callback_data="edit_secret")],
