@@ -58,7 +58,7 @@ async def menu_proxy(message: Message):
             t_out = f"{parts[-2]} {parts[-1]}"
         except IndexError:
             t_in = t_out = "—"
-        lines.append(f"<b>{name}</b>  ↓{t_in}  ↑{t_out}")
+        lines.append(f"<tg-emoji emoji-id='5343939876100262740'>🟢</tg-emoji><b>{name}</b>  ↓{t_in}  ↑{t_out}\n\n")
 
     await message.answer("\n".join(lines), parse_mode="HTML")
 
@@ -132,7 +132,7 @@ async def cb_all_secrets(callback: CallbackQuery):
         lok, lout = await mp.secret_link(name)
         link = extract_proxy_link(lout) if lok else None
         if link:
-            lines.append(f"<b>{name}</b>\n<code>{link}</code>")
+            lines.append(f"<b>🗽{name}</b>\n<code>{link}</code>")
         else:
             lines.append(f"<b>{name}</b> — ссылка недоступна")
 
