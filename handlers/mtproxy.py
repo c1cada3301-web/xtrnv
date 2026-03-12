@@ -132,7 +132,7 @@ async def cb_all_secrets(callback: CallbackQuery):
         lok, lout = await mp.secret_link(name)
         link = extract_proxy_link(lout) if lok else None
         if link:
-            lines.append(f"<b>🗽{name}</b>\n<code>{link}</code>")
+            lines.append(f"<b>🗽{name}</b>\n{link}")
         else:
             lines.append(f"<b>{name}</b> — ссылка недоступна")
 
