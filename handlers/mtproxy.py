@@ -82,7 +82,7 @@ async def menu_stats(message: Message):
     domain   = _get(r"Domain:\s+(\S+)")
     traffic  = _get(r"Traffic:\s+(↓[^\n]+?)(?:\s{2,}|\n)")
     conns    = _get(r"Connections:\s+(\d+)")
-    secrets  = _get(r"Secrets:\s+([^\n]+)")
+    secrets  = _get(r"Secrets:\s+([^\n│]+)")
 
     text = (
         f"{status_icon} <b>Статус прокси</b>\n\n"
