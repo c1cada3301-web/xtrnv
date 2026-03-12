@@ -44,10 +44,23 @@ async def menu_proxy(message: Message):
     if not ok:
         await message.answer(f"❌ Ошибка: {out}")
         return
-    await message.answer(
-        f"💎 <b>Трафик по секретам</b>\n\n<pre>{out}</pre>",
-        parse_mode="HTML",
-    )
+
+    lines = ["💎 <b>Трафик по секретам</b>\n"]
+    for line in out.splitlines():
+        parts = line.strip().split()
+        if len(parts) < 2 or not parts[0].isdigit():
+            continue
+        # формат: N  label  ●  active  date  traffic_in  unit_in  traffic_out  unit_out
+        name = parts[1]
+        # трафик in/out — берём последние 4 токена (val unit val unit)
+        try:
+            t_in = f"{parts[-4]} {parts[-3]}"
+            t_out = f"{parts[-2]} {parts[-1]}"
+        except IndexError:
+            t_in = t_out = "—"
+        lines.append(f"<b>{name}</b>  ↓{t_in}  ↑{t_out}")
+
+    await message.answer("\n".join(lines), parse_mode="HTML")
 
 
 # ─── Кнопка «📊 Статистика» ───────────────────────────────────────────────────
@@ -55,11 +68,34 @@ async def menu_proxy(message: Message):
 @router.message(F.text == "📊 Статистика")
 async def menu_stats(message: Message):
     ok, out = await mp.proxy_status()
-    status_icon = "🟢" if ok else "🔴"
-    await message.answer(
-        f"{status_icon} <b>Общий статус прокси</b>\n\n<pre>{out}</pre>",
-        parse_mode="HTML",
+
+    import re
+    def _get(pattern, default="—"):
+        m = re.search(pattern, out)
+        return m.group(1).strip() if m else default
+
+    status_word = _get(r"Status:\s+\S+\s+(\w+)")
+    status_icon = "🟢" if "RUNNING" in out.upper() else "🔴"
+    engine   = _get(r"Engine:\s+(\S+)")
+    port     = _get(r"Port:\s+(\S+)")
+    uptime   = _get(r"Uptime:\s+(\S+)")
+    domain   = _get(r"Domain:\s+(\S+)")
+    traffic  = _get(r"Traffic:\s+(↓[^\n]+?)(?:\s{2,}|\n)")
+    conns    = _get(r"Connections:\s+(\d+)")
+    secrets  = _get(r"Secrets:\s+([^\n]+)")
+
+    text = (
+        f"{status_icon} <b>Статус прокси</b>\n\n"
+        f"Статус: <b>{status_word}</b>\n"
+        f"Engine: {engine}\n"
+        f"Порт: {port}\n"
+        f"Домен: {domain}\n"
+        f"Аптайм: {uptime}\n"
+        f"Трафик: {traffic}\n"
+        f"Соединений: {conns}\n"
+        f"Секреты: {secrets}"
     )
+    await message.answer(text, parse_mode="HTML")
 
 
 # ─── Inline: ссылка по имени (+ QR) ─────────────────────────────────────────
