@@ -52,8 +52,10 @@ async def menu_proxy(message: Message):
 
 @router.message(F.text == "🛠 Подключение")
 async def menu_connection(message: Message, state: FSMContext):
+    _, users = await mp.secret_list()
     await message.answer(
-        "Введите имя пользователя для получения ссылки подключения:",
+        f"<b>Текущие пользователи:</b>\n<pre>{users}</pre>\n\nВведите имя пользователя для получения ссылки подключения:",
+        parse_mode="HTML",
         reply_markup=get_back_keyboard(),
     )
     await state.set_state(MTProxyStates.waiting_label_link)
@@ -87,7 +89,7 @@ async def cb_add_user(callback: CallbackQuery, state: FSMContext):
 
 @router.message(MTProxyStates.waiting_label_add)
 async def process_label_add(message: Message, state: FSMContext):
-    if message.text == "🔙 Назад":
+    if message.text == "⬅️ Назад":
         await state.clear()
         await message.answer("Отмена.", reply_markup=get_driver_main_menu())
         return
@@ -123,8 +125,10 @@ async def cb_confirm_add(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "remove_user")
 async def cb_remove_user(callback: CallbackQuery, state: FSMContext):
+    _, users = await mp.secret_list()
     await callback.message.answer(
-        "Введите имя пользователя для удаления:",
+        f"<b>Текущие пользователи:</b>\n<pre>{users}</pre>\n\nВведите имя пользователя для удаления:",
+        parse_mode="HTML",
         reply_markup=get_back_keyboard(),
     )
     await state.set_state(MTProxyStates.waiting_label_remove)
@@ -133,7 +137,7 @@ async def cb_remove_user(callback: CallbackQuery, state: FSMContext):
 
 @router.message(MTProxyStates.waiting_label_remove)
 async def process_label_remove(message: Message, state: FSMContext):
-    if message.text == "🔙 Назад":
+    if message.text == "⬅️ Назад":
         await state.clear()
         await message.answer("Отмена.", reply_markup=get_driver_main_menu())
         return
@@ -165,8 +169,10 @@ async def cb_confirm_remove(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "edit_secret")
 async def cb_edit_secret(callback: CallbackQuery, state: FSMContext):
+    _, users = await mp.secret_list()
     await callback.message.answer(
-        "Введите имя пользователя для смены секрета:",
+        f"<b>Текущие пользователи:</b>\n<pre>{users}</pre>\n\nВведите имя пользователя для смены секрета:",
+        parse_mode="HTML",
         reply_markup=get_back_keyboard(),
     )
     await state.set_state(MTProxyStates.waiting_label_rotate)
@@ -175,7 +181,7 @@ async def cb_edit_secret(callback: CallbackQuery, state: FSMContext):
 
 @router.message(MTProxyStates.waiting_label_rotate)
 async def process_label_rotate(message: Message, state: FSMContext):
-    if message.text == "🔙 Назад":
+    if message.text == "⬅️ Назад":
         await state.clear()
         await message.answer("Отмена.", reply_markup=get_driver_main_menu())
         return
@@ -210,7 +216,7 @@ async def cb_confirm_rotate(callback: CallbackQuery, state: FSMContext):
 
 @router.message(MTProxyStates.waiting_label_link)
 async def process_label_link(message: Message, state: FSMContext):
-    if message.text == "🔙 Назад":
+    if message.text == "⬅️ Назад":
         await state.clear()
         await message.answer("Отмена.", reply_markup=get_driver_main_menu())
         return
